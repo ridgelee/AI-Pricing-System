@@ -1,16 +1,16 @@
 services:
   db:
-    image: postgres:15
+    image: pgvector/pgvector:pg15
     environment:
-      POSTGRES_DB: careplan
-      POSTGRES_USER: careplan
-      POSTGRES_PASSWORD: careplan123
+      POSTGRES_DB: pricing_db
+      POSTGRES_USER: pricing
+      POSTGRES_PASSWORD: pricing123
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U careplan -d careplan"]
+      test: ["CMD-SHELL", "pg_isready -U pricing -d pricing_db"]
       interval: 2s
       timeout: 5s
       retries: 10
@@ -32,7 +32,7 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://careplan:careplan123@db:5432/careplan
+      - DATABASE_URL=postgresql://pricing:pricing123@db:5432/pricing_db
       - REDIS_URL=redis://redis:6379/0
       - DEBUG=1
       - PYTHONUNBUFFERED=1
@@ -51,7 +51,7 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://careplan:careplan123@db:5432/careplan
+      - DATABASE_URL=postgresql://pricing:pricing123@db:5432/pricing_db
       - REDIS_URL=redis://redis:6379/0
       - DEBUG=1
       - PYTHONUNBUFFERED=1
@@ -70,7 +70,7 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://careplan:careplan123@db:5432/careplan
+      - DATABASE_URL=postgresql://pricing:pricing123@db:5432/pricing_db
       - REDIS_URL=redis://redis:6379/0
       - PYTHONUNBUFFERED=1
     ports:
@@ -86,7 +86,7 @@ services:
   test:
     build: ./backend
     environment:
-      - DATABASE_URL=postgresql://careplan:careplan123@db:5432/careplan
+      - DATABASE_URL=postgresql://pricing:pricing123@db:5432/pricing_db
       - REDIS_URL=redis://redis:6379/0
       - PYTHONUNBUFFERED=1
     depends_on:
