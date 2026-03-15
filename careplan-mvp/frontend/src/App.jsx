@@ -1,249 +1,361 @@
 import { useState, useEffect, useRef } from 'react'
 
+// ===========================================================================
+// 样式定义
+// ===========================================================================
 const styles = {
+  page: {
+    minHeight: '100vh',
+    background: '#f0f2f5',
+    padding: '30px 20px',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  },
   container: {
-    maxWidth: '900px',
+    maxWidth: '1100px',
     margin: '0 auto',
-    padding: '20px',
   },
   header: {
     textAlign: 'center',
-    marginBottom: '30px',
-    color: '#333',
+    marginBottom: '8px',
+    color: '#1a1a2e',
+    fontSize: '28px',
+    fontWeight: '700',
   },
-  form: {
+  subtitle: {
+    textAlign: 'center',
+    color: '#666',
+    marginBottom: '32px',
+    fontSize: '15px',
+  },
+  card: {
     background: 'white',
-    padding: '30px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    borderRadius: '10px',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+    padding: '32px',
     marginBottom: '20px',
   },
-  section: {
-    marginBottom: '25px',
-    paddingBottom: '20px',
-    borderBottom: '1px solid #eee',
-  },
-  sectionTitle: {
+  cardTitle: {
     fontSize: '18px',
     fontWeight: '600',
-    marginBottom: '15px',
+    color: '#333',
+    marginBottom: '20px',
+  },
+  // Drop zone
+  dropzone: {
+    border: '2px dashed #c8d0e0',
+    borderRadius: '8px',
+    padding: '48px 24px',
+    textAlign: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    marginBottom: '20px',
+    background: '#fafbfd',
+  },
+  dropzoneActive: {
+    border: '2px dashed #0066cc',
+    background: '#e8f0fd',
+  },
+  dropzoneHasFile: {
+    border: '2px solid #28a745',
+    background: '#f0fff4',
+  },
+  dropzoneIcon: {
+    fontSize: '48px',
+    marginBottom: '12px',
+  },
+  dropzoneText: {
+    fontSize: '16px',
     color: '#444',
-  },
-  row: {
-    display: 'flex',
-    gap: '15px',
-    marginBottom: '15px',
-  },
-  field: {
-    flex: 1,
-  },
-  label: {
-    display: 'block',
-    marginBottom: '5px',
+    marginBottom: '6px',
     fontWeight: '500',
-    fontSize: '14px',
-    color: '#555',
   },
-  input: {
-    width: '100%',
-    padding: '10px 12px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '14px',
-    boxSizing: 'border-box',
+  dropzoneHint: {
+    fontSize: '13px',
+    color: '#888',
   },
-  textarea: {
-    width: '100%',
-    padding: '10px 12px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '14px',
-    minHeight: '80px',
-    resize: 'vertical',
-    boxSizing: 'border-box',
-  },
+  // Buttons
   button: {
     background: '#0066cc',
     color: 'white',
     border: 'none',
-    padding: '12px 30px',
-    borderRadius: '4px',
-    fontSize: '16px',
+    padding: '13px 32px',
+    borderRadius: '6px',
+    fontSize: '15px',
+    fontWeight: '600',
     cursor: 'pointer',
     width: '100%',
+    transition: 'background 0.2s',
   },
   buttonDisabled: {
-    background: '#999',
+    background: '#b0bec5',
     cursor: 'not-allowed',
-  },
-  result: {
-    background: 'white',
-    padding: '30px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-  },
-  status: {
-    padding: '15px',
-    borderRadius: '4px',
-    marginBottom: '20px',
-    textAlign: 'center',
-  },
-  statusPending: {
-    background: '#fff3cd',
-    color: '#856404',
-  },
-  statusProcessing: {
-    background: '#cce5ff',
-    color: '#004085',
-  },
-  statusCompleted: {
-    background: '#d4edda',
-    color: '#155724',
-  },
-  statusFailed: {
-    background: '#f8d7da',
-    color: '#721c24',
-  },
-  carePlan: {
-    background: '#f8f9fa',
-    padding: '20px',
-    borderRadius: '4px',
-    whiteSpace: 'pre-wrap',
-    fontFamily: 'monospace',
-    fontSize: '14px',
-    lineHeight: '1.6',
-    maxHeight: '500px',
-    overflow: 'auto',
-  },
-  buttonRow: {
-    display: 'flex',
-    gap: '10px',
-    marginTop: '15px',
   },
   downloadButton: {
     background: '#28a745',
     color: 'white',
     border: 'none',
-    padding: '10px 20px',
-    borderRadius: '4px',
+    padding: '11px 24px',
+    borderRadius: '6px',
+    fontSize: '14px',
+    fontWeight: '600',
     cursor: 'pointer',
     flex: 1,
+    transition: 'background 0.2s',
   },
-  checkStatusButton: {
-    background: '#17a2b8',
-    color: 'white',
-    border: 'none',
-    padding: '10px 20px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    flex: 1,
-  },
-  orderInfo: {
-    background: '#e9ecef',
-    padding: '15px',
-    borderRadius: '4px',
-    marginBottom: '15px',
-    fontSize: '14px',
-  },
-  orderId: {
-    fontFamily: 'monospace',
-    background: '#fff',
-    padding: '4px 8px',
-    borderRadius: '3px',
-    fontSize: '13px',
-  },
-  // Search styles
-  searchSection: {
-    background: 'white',
-    padding: '20px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    marginBottom: '20px',
-  },
-  searchRow: {
-    display: 'flex',
-    gap: '10px',
-  },
-  searchInput: {
-    flex: 1,
-    padding: '10px 12px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '14px',
-  },
-  searchButton: {
+  resetButton: {
     background: '#6c757d',
     color: 'white',
     border: 'none',
-    padding: '10px 20px',
-    borderRadius: '4px',
-    cursor: 'pointer',
+    padding: '11px 24px',
+    borderRadius: '6px',
     fontSize: '14px',
-  },
-  searchResults: {
-    marginTop: '15px',
-  },
-  searchResultItem: {
-    padding: '12px',
-    borderBottom: '1px solid #eee',
+    fontWeight: '600',
     cursor: 'pointer',
+    flex: 1,
+    transition: 'background 0.2s',
+  },
+  buttonRow: {
     display: 'flex',
-    justifyContent: 'space-between',
+    gap: '12px',
+    marginTop: '20px',
+  },
+  // Status banners
+  statusBanner: {
+    padding: '16px 20px',
+    borderRadius: '6px',
+    marginBottom: '20px',
+    textAlign: 'center',
+  },
+  status_pending: {
+    background: '#fff3cd',
+    color: '#856404',
+    border: '1px solid #ffc107',
+  },
+  status_processing: {
+    background: '#cce5ff',
+    color: '#004085',
+    border: '1px solid #b8daff',
+  },
+  status_completed: {
+    background: '#d4edda',
+    color: '#155724',
+    border: '1px solid #c3e6cb',
+  },
+  status_failed: {
+    background: '#f8d7da',
+    color: '#721c24',
+    border: '1px solid #f5c6cb',
+  },
+  // Request info bar
+  requestInfo: {
+    display: 'flex',
+    gap: '24px',
+    padding: '12px 16px',
+    background: '#f8f9fa',
+    borderRadius: '6px',
+    marginBottom: '20px',
+    fontSize: '13px',
+    color: '#555',
+    flexWrap: 'wrap',
     alignItems: 'center',
   },
-  searchResultItemHover: {
-    background: '#f8f9fa',
+  requestId: {
+    fontFamily: 'monospace',
+    background: '#e9ecef',
+    padding: '2px 8px',
+    borderRadius: '4px',
+    fontSize: '12px',
   },
-  divider: {
-    borderTop: '2px solid #dee2e6',
-    margin: '30px 0',
+  // Progress
+  progress: {
+    fontSize: '14px',
+    color: '#666',
+    marginTop: '6px',
+  },
+  progressBar: {
+    height: '6px',
+    background: '#e9ecef',
+    borderRadius: '3px',
+    marginTop: '10px',
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    background: '#0066cc',
+    borderRadius: '3px',
+    transition: 'width 0.3s ease',
+  },
+  // Results table
+  tableWrapper: {
+    overflowX: 'auto',
+    borderRadius: '6px',
+    border: '1px solid #e0e0e0',
+  },
+  table: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: '14px',
+  },
+  th: {
+    background: '#f8f9fa',
+    padding: '12px 14px',
+    textAlign: 'left',
+    fontWeight: '600',
+    color: '#444',
+    borderBottom: '2px solid #dee2e6',
+    whiteSpace: 'nowrap',
+  },
+  td: {
+    padding: '11px 14px',
+    borderBottom: '1px solid #f0f0f0',
+    color: '#333',
+    verticalAlign: 'top',
+  },
+  tdMono: {
+    fontFamily: 'monospace',
+    fontSize: '13px',
+    color: '#333',
+  },
+  tdPrice: {
+    fontWeight: '600',
+    color: '#1565c0',
+  },
+  tdMargin: {
+    fontWeight: '600',
+    color: '#2e7d32',
+  },
+  tdReasoning: {
+    maxWidth: '260px',
+    lineHeight: '1.5',
+    color: '#555',
+    fontSize: '13px',
+  },
+  badgeSuccess: {
+    background: '#d4edda',
+    color: '#155724',
+    padding: '2px 10px',
+    borderRadius: '12px',
+    fontSize: '12px',
+    fontWeight: '600',
+    whiteSpace: 'nowrap',
+  },
+  badgeError: {
+    background: '#f8d7da',
+    color: '#721c24',
+    padding: '2px 10px',
+    borderRadius: '12px',
+    fontSize: '12px',
+    fontWeight: '600',
+    whiteSpace: 'nowrap',
+  },
+  // Summary stats
+  statsRow: {
+    display: 'flex',
+    gap: '16px',
+    marginBottom: '20px',
+    flexWrap: 'wrap',
+  },
+  statCard: {
+    flex: 1,
+    minWidth: '120px',
+    background: '#f8f9fa',
+    borderRadius: '8px',
+    padding: '14px 18px',
+    textAlign: 'center',
+  },
+  statValue: {
+    fontSize: '26px',
+    fontWeight: '700',
+    color: '#1a1a2e',
+  },
+  statLabel: {
+    fontSize: '12px',
+    color: '#888',
+    marginTop: '4px',
+  },
+  // CSV hint
+  hint: {
+    background: '#e8f4fd',
+    border: '1px solid #bee5f9',
+    borderRadius: '6px',
+    padding: '12px 16px',
+    fontSize: '13px',
+    color: '#1565c0',
+    marginTop: '16px',
+  },
+  // Polling indicator
+  pollingDot: {
+    display: 'inline-block',
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    background: '#0066cc',
+    marginRight: '8px',
+    animation: 'pulse 1.2s infinite',
   },
 }
 
+// ===========================================================================
+// 辅助函数
+// ===========================================================================
+const STATUS_TEXT = {
+  pending:    '⏳ 等待中 — 任务已创建，即将开始处理',
+  processing: '⚙️ 处理中 — 正在逐个 SKU 调用 AI 定价',
+  completed:  '✅ 定价完成',
+  failed:     '❌ 任务失败',
+}
+
+function getStatusText(status) {
+  return STATUS_TEXT[status] || status?.toUpperCase() || '未知'
+}
+
+function getStatusStyle(status) {
+  return { ...styles.statusBanner, ...(styles[`status_${status}`] || {}) }
+}
+
+function formatPrice(val) {
+  if (val == null) return '—'
+  return `$${Number(val).toFixed(2)}`
+}
+
+function formatMargin(val) {
+  if (val == null) return '—'
+  return `${(Number(val) * 100).toFixed(1)}%`
+}
+
+// ===========================================================================
+// 主组件
+// ===========================================================================
 function App() {
-  const [formData, setFormData] = useState({
-    patient: {
-      first_name: '',
-      last_name: '',
-      dob: '',
-      mrn: '',
-    },
-    provider: {
-      name: '',
-      npi: '',
-    },
-    medication: {
-      name: '',
-      primary_diagnosis: '',
-      additional_diagnoses: '',
-      medication_history: '',
-    },
-    patient_records: '',
-  })
+  const [file, setFile] = useState(null)
+  const [dragOver, setDragOver] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState(null)
 
-  const [loading, setLoading] = useState(false)
-  const [checkingStatus, setCheckingStatus] = useState(false)
-  const [result, setResult] = useState(null)
-
-  // Polling state
+  const [pricingData, setPricingData] = useState(null)   // GET /api/pricing/<id>/ response
   const [polling, setPolling] = useState(false)
   const pollingRef = useRef(null)
+  const fileInputRef = useRef(null)
 
-  // Auto-poll when result status is pending or processing
+  // ── Polling effect ────────────────────────────────────────────────────────
   useEffect(() => {
-    if (polling && result?.order_id && (result.status === 'pending' || result.status === 'processing')) {
+    const isActive = polling &&
+      pricingData?.request_id &&
+      (pricingData.status === 'pending' || pricingData.status === 'processing')
+
+    if (isActive) {
       pollingRef.current = setInterval(async () => {
         try {
-          const response = await fetch(`/api/orders/${result.order_id}/`)
-          const data = await response.json()
-          setResult(data)
+          const res = await fetch(`/api/pricing/${pricingData.request_id}/`)
+          const data = await res.json()
+          setPricingData(data)
           if (data.status === 'completed' || data.status === 'failed') {
             setPolling(false)
           }
-        } catch (error) {
-          // Keep polling on network errors - don't stop
+        } catch {
+          // 网络错误时继续等待，不停止轮询
         }
-      }, 3000)
+      }, 2000)
     }
 
     return () => {
@@ -252,461 +364,304 @@ function App() {
         pollingRef.current = null
       }
     }
-  }, [polling, result?.order_id, result?.status])
+  }, [polling, pricingData?.request_id, pricingData?.status])
 
-  // Search state
-  const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState(null)
-  const [searching, setSearching] = useState(false)
-
-  const handleChange = (section, field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: typeof prev[section] === 'object'
-        ? { ...prev[section], [field]: value }
-        : value
-    }))
-  }
-
-  // POST /api/orders/search/ - Search orders
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      alert('Please enter search term')
+  // ── 文件选择 ──────────────────────────────────────────────────────────────
+  const handleFileSelect = (f) => {
+    if (!f) return
+    if (!f.name.toLowerCase().endsWith('.csv')) {
+      setUploadError('请选择 .csv 格式的文件')
       return
     }
-
-    setSearching(true)
-    try {
-      const response = await fetch('/api/orders/search/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: searchQuery }),
-      })
-      const data = await response.json()
-      setSearchResults(data)
-    } catch (error) {
-      alert('Search failed: ' + error.message)
-    } finally {
-      setSearching(false)
-    }
+    setFile(f)
+    setUploadError(null)
   }
 
-  // Click search result to load order details
-  const handleSelectOrder = async (orderId) => {
-    setCheckingStatus(true)
-    try {
-      const response = await fetch(`/api/orders/${orderId}/`)
-      const data = await response.json()
-      setResult(data)
-    } catch (error) {
-      setResult({ status: 'failed', error: { message: error.message } })
-    } finally {
-      setCheckingStatus(false)
-    }
-  }
-
-  // POST /api/orders/ - Submit form and get order_id
-  const handleSubmit = async (e) => {
+  const handleDragOver = (e) => { e.preventDefault(); setDragOver(true) }
+  const handleDragLeave = () => setDragOver(false)
+  const handleDrop = (e) => {
     e.preventDefault()
-    setLoading(true)
-    setResult(null)
+    setDragOver(false)
+    handleFileSelect(e.dataTransfer.files[0])
+  }
 
-    const payload = {
-      patient: formData.patient,
-      provider: formData.provider,
-      medication: {
-        name: formData.medication.name,
-        primary_diagnosis: formData.medication.primary_diagnosis,
-        additional_diagnoses: formData.medication.additional_diagnoses
-          ? formData.medication.additional_diagnoses.split(',').map(s => s.trim())
-          : [],
-        medication_history: formData.medication.medication_history
-          ? formData.medication.medication_history.split(',').map(s => s.trim())
-          : [],
-      },
-      patient_records: formData.patient_records,
-    }
+  // ── 上传 ──────────────────────────────────────────────────────────────────
+  const handleUpload = async () => {
+    if (!file || uploading) return
+
+    setUploading(true)
+    setUploadError(null)
+    setPricingData(null)
+
+    const formData = new FormData()
+    formData.append('file', file)
 
     try {
-      const response = await fetch('/api/orders/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      const data = await response.json()
-      setResult(data)
-      if (data.order_id && data.status !== 'failed') {
-        setPolling(true)
+      const res = await fetch('/api/pricing/upload/', { method: 'POST', body: formData })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setUploadError(data.error || `上传失败（HTTP ${res.status}）`)
+        return
       }
-    } catch (error) {
-      setResult({
-        status: 'failed',
-        error: { message: error.message }
-      })
+
+      // 上传成功 → 立刻拉一次完整详情（含 results 字段）
+      const detailRes = await fetch(`/api/pricing/${data.request_id}/`)
+      const detailData = await detailRes.json()
+      setPricingData(detailData)
+      setPolling(true)
+    } catch (err) {
+      setUploadError('网络错误：' + err.message)
     } finally {
-      setLoading(false)
+      setUploading(false)
     }
   }
 
-  // GET /api/orders/{order_id}/ - Check status
-  const handleCheckStatus = async () => {
-    if (!result || !result.order_id) return
-
-    setCheckingStatus(true)
-
-    try {
-      const response = await fetch(`/api/orders/${result.order_id}/`)
-      const data = await response.json()
-      setResult(data)
-    } catch (error) {
-      setResult(prev => ({
-        ...prev,
-        error: { message: error.message }
-      }))
-    } finally {
-      setCheckingStatus(false)
-    }
-  }
-
+  // ── 下载 ──────────────────────────────────────────────────────────────────
   const handleDownload = () => {
-    if (result && result.order_id) {
-      window.open(`/api/orders/${result.order_id}/download`, '_blank')
+    if (pricingData?.request_id) {
+      window.location.href = `/api/pricing/${pricingData.request_id}/download/`
     }
   }
 
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case 'pending': return { ...styles.status, ...styles.statusPending }
-      case 'processing': return { ...styles.status, ...styles.statusProcessing }
-      case 'completed': return { ...styles.status, ...styles.statusCompleted }
-      case 'failed': return { ...styles.status, ...styles.statusFailed }
-      default: return styles.status
-    }
+  // ── 重置 ──────────────────────────────────────────────────────────────────
+  const handleReset = () => {
+    setFile(null)
+    setUploadError(null)
+    setPricingData(null)
+    setPolling(false)
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'pending': return 'PENDING - Queued for processing'
-      case 'processing': return 'PROCESSING - Generating Care Plan...'
-      case 'completed': return 'COMPLETED'
-      case 'failed': return 'FAILED'
-      default: return status?.toUpperCase() || 'UNKNOWN'
-    }
-  }
+  // ── 计算统计数据 ──────────────────────────────────────────────────────────
+  const results = pricingData?.results || []
+  const successCount = results.filter(r => !r.error_message).length
+  const errorCount   = results.filter(r =>  r.error_message).length
+  const avgPrice = successCount > 0
+    ? results.reduce((s, r) => s + (r.recommended_price || 0), 0) / successCount
+    : null
+  const avgMargin = successCount > 0
+    ? results.reduce((s, r) => s + (r.expected_margin || 0), 0) / successCount
+    : null
 
-  const getStatusBadge = (status) => {
-    const colors = {
-      pending: { bg: '#fff3cd', color: '#856404' },
-      processing: { bg: '#cce5ff', color: '#004085' },
-      completed: { bg: '#d4edda', color: '#155724' },
-      failed: { bg: '#f8d7da', color: '#721c24' },
-    }
-    const style = colors[status] || { bg: '#eee', color: '#666' }
-    return (
-      <span style={{
-        background: style.bg,
-        color: style.color,
-        padding: '2px 8px',
-        borderRadius: '3px',
-        fontSize: '12px',
-      }}>
-        {status}
-      </span>
-    )
-  }
-
+  // ── 渲染 ──────────────────────────────────────────────────────────────────
   return (
-    <div style={styles.container}>
-      <h1 style={styles.header}>Care Plan Generator</h1>
+    <div style={styles.page}>
+      <div style={styles.container}>
+        <h1 style={styles.header}>🏷️ AI 智能定价系统</h1>
+        <p style={styles.subtitle}>
+          上传包含 SKU ID 的 CSV 文件，AI 自动从知识库检索商品信息并生成定价建议
+        </p>
 
-      {/* Search Section */}
-      <div style={styles.searchSection}>
-        <h2 style={styles.sectionTitle}>Search Orders</h2>
-        <div style={styles.searchRow}>
-          <input
-            style={styles.searchInput}
-            type="text"
-            placeholder="Search by Order ID, Patient Name, MRN, or Medication..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          />
-          <button
-            style={searching ? { ...styles.searchButton, ...styles.buttonDisabled } : styles.searchButton}
-            onClick={handleSearch}
-            disabled={searching}
-          >
-            {searching ? 'Searching...' : 'Search'}
-          </button>
-        </div>
+        {/* ===================== 上传区（未上传时显示）===================== */}
+        {!pricingData && (
+          <div style={styles.card}>
+            <h2 style={styles.cardTitle}>上传 SKU 清单</h2>
 
-        {/* Search Results */}
-        {searchResults && (
-          <div style={styles.searchResults}>
-            <p style={{ marginBottom: '10px', color: '#666' }}>
-              Found {searchResults.count} order(s)
-            </p>
-            {searchResults.orders.map((order) => (
-              <div
-                key={order.order_id}
-                style={styles.searchResultItem}
-                onClick={() => handleSelectOrder(order.order_id)}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#f8f9fa'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-              >
-                <div>
-                  <span style={{ fontFamily: 'monospace', marginRight: '15px' }}>
-                    {order.order_id.substring(0, 8)}...
-                  </span>
-                  <strong>{order.patient_name}</strong>
-                  <span style={{ color: '#666', marginLeft: '10px' }}>
-                    MRN: {order.patient_mrn}
-                  </span>
-                  <span style={{ color: '#666', marginLeft: '10px' }}>
-                    {order.medication}
-                  </span>
-                </div>
-                <div>
-                  {getStatusBadge(order.status)}
-                  <span style={{ color: '#999', marginLeft: '10px', fontSize: '12px' }}>
-                    {new Date(order.created_at).toLocaleDateString()}
-                  </span>
-                </div>
+            {/* 拖拽区 */}
+            <div
+              style={{
+                ...styles.dropzone,
+                ...(dragOver ? styles.dropzoneActive : {}),
+                ...(file ? styles.dropzoneHasFile : {}),
+              }}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                style={{ display: 'none' }}
+                onChange={(e) => handleFileSelect(e.target.files[0])}
+              />
+              {file ? (
+                <>
+                  <div style={styles.dropzoneIcon}>📄</div>
+                  <div style={{ ...styles.dropzoneText, color: '#28a745' }}>{file.name}</div>
+                  <div style={styles.dropzoneHint}>
+                    {(file.size / 1024).toFixed(1)} KB — 点击重新选择
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={styles.dropzoneIcon}>📂</div>
+                  <div style={styles.dropzoneText}>点击选择文件 或 拖拽 CSV 至此处</div>
+                  <div style={styles.dropzoneHint}>支持 .csv 格式，请确保包含 sku_id 列</div>
+                </>
+              )}
+            </div>
+
+            {/* 错误提示 */}
+            {uploadError && (
+              <div style={{ ...getStatusStyle('failed'), marginBottom: '16px', textAlign: 'left' }}>
+                ⚠️ {uploadError}
               </div>
-            ))}
+            )}
+
+            {/* 上传按钮 */}
+            <button
+              style={{
+                ...styles.button,
+                ...(!file || uploading ? styles.buttonDisabled : {}),
+              }}
+              onClick={handleUpload}
+              disabled={!file || uploading}
+            >
+              {uploading ? '⏳ 上传中...' : '🚀 开始 AI 定价分析'}
+            </button>
+
+            {/* CSV 格式说明 */}
+            <div style={styles.hint}>
+              <strong>CSV 格式说明：</strong>第一行为表头，必须包含 <code>sku_id</code> 列。
+              示例：<code>sku_id,备注</code> / <code>ELE-001,无线耳机</code>
+            </div>
+          </div>
+        )}
+
+        {/* ===================== 结果区（上传后显示）===================== */}
+        {pricingData && (
+          <div style={styles.card}>
+            {/* 请求信息栏 */}
+            <div style={styles.requestInfo}>
+              <span>📁 <strong>{pricingData.uploaded_filename}</strong></span>
+              <span>共 <strong>{pricingData.sku_count}</strong> 个 SKU</span>
+              <span style={styles.requestId}>ID: {pricingData.request_id.substring(0, 8)}…</span>
+              <span style={{ color: '#999', marginLeft: 'auto', fontSize: '12px' }}>
+                {new Date(pricingData.created_at).toLocaleString('zh-CN')}
+              </span>
+            </div>
+
+            {/* 状态 Banner */}
+            <div style={getStatusStyle(pricingData.status)}>
+              <strong>{getStatusText(pricingData.status)}</strong>
+              {(pricingData.status === 'pending' || pricingData.status === 'processing') && (
+                <div style={styles.progress}>
+                  已处理 {pricingData.completed_count || 0} / {pricingData.sku_count} 个 SKU
+                  <div style={styles.progressBar}>
+                    <div style={{
+                      ...styles.progressFill,
+                      width: `${pricingData.sku_count > 0
+                        ? Math.round((pricingData.completed_count || 0) / pricingData.sku_count * 100)
+                        : 0}%`
+                    }} />
+                  </div>
+                  <div style={{ marginTop: '8px', fontSize: '12px' }}>
+                    <span style={styles.pollingDot} />
+                    每 2 秒自动刷新…
+                  </div>
+                </div>
+              )}
+              {pricingData.status === 'failed' && pricingData.error_message && (
+                <div style={{ marginTop: '8px', fontSize: '13px' }}>
+                  错误：{pricingData.error_message}
+                </div>
+              )}
+            </div>
+
+            {/* 汇总统计（completed 时显示）*/}
+            {pricingData.status === 'completed' && results.length > 0 && (
+              <div style={styles.statsRow}>
+                <div style={styles.statCard}>
+                  <div style={styles.statValue}>{pricingData.sku_count}</div>
+                  <div style={styles.statLabel}>总 SKU 数</div>
+                </div>
+                <div style={styles.statCard}>
+                  <div style={{ ...styles.statValue, color: '#2e7d32' }}>{successCount}</div>
+                  <div style={styles.statLabel}>定价成功</div>
+                </div>
+                <div style={styles.statCard}>
+                  <div style={{ ...styles.statValue, color: '#c62828' }}>{errorCount}</div>
+                  <div style={styles.statLabel}>未找到</div>
+                </div>
+                {avgPrice != null && (
+                  <div style={styles.statCard}>
+                    <div style={styles.statValue}>${avgPrice.toFixed(2)}</div>
+                    <div style={styles.statLabel}>平均建议价</div>
+                  </div>
+                )}
+                {avgMargin != null && (
+                  <div style={styles.statCard}>
+                    <div style={styles.statValue}>{(avgMargin * 100).toFixed(1)}%</div>
+                    <div style={styles.statLabel}>平均毛利率</div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 结果明细表 */}
+            {results.length > 0 && (
+              <div style={styles.tableWrapper}>
+                <table style={styles.table}>
+                  <thead>
+                    <tr>
+                      <th style={styles.th}>SKU ID</th>
+                      <th style={styles.th}>建议价 (USD)</th>
+                      <th style={styles.th}>最低价</th>
+                      <th style={styles.th}>最高价</th>
+                      <th style={styles.th}>预期毛利率</th>
+                      <th style={styles.th}>定价依据</th>
+                      <th style={styles.th}>状态</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {results.map((r, idx) => (
+                      <tr
+                        key={r.result_id}
+                        style={{ background: idx % 2 === 0 ? '#fff' : '#fafafa' }}
+                      >
+                        <td style={{ ...styles.td, ...styles.tdMono }}>{r.sku_id}</td>
+                        <td style={{ ...styles.td, ...styles.tdPrice }}>
+                          {formatPrice(r.recommended_price)}
+                        </td>
+                        <td style={styles.td}>{formatPrice(r.price_min)}</td>
+                        <td style={styles.td}>{formatPrice(r.price_max)}</td>
+                        <td style={{ ...styles.td, ...styles.tdMargin }}>
+                          {formatMargin(r.expected_margin)}
+                        </td>
+                        <td style={{ ...styles.td, ...styles.tdReasoning }}>
+                          {r.error_message
+                            ? <span style={{ color: '#c62828' }}>{r.error_message}</span>
+                            : r.reasoning
+                          }
+                        </td>
+                        <td style={styles.td}>
+                          {r.error_message
+                            ? <span style={styles.badgeError}>未找到</span>
+                            : <span style={styles.badgeSuccess}>成功</span>
+                          }
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* 操作按钮 */}
+            <div style={styles.buttonRow}>
+              {pricingData.status === 'completed' && (
+                <button style={styles.downloadButton} onClick={handleDownload}>
+                  ⬇️ 下载结果 CSV
+                </button>
+              )}
+              <button style={styles.resetButton} onClick={handleReset}>
+                🔄 重新上传
+              </button>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Divider */}
-      <div style={styles.divider}></div>
-
-      <form style={styles.form} onSubmit={handleSubmit}>
-        {/* Patient Section */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>Patient Information</h2>
-          <div style={styles.row}>
-            <div style={styles.field}>
-              <label style={styles.label}>First Name *</label>
-              <input
-                style={styles.input}
-                type="text"
-                value={formData.patient.first_name}
-                onChange={(e) => handleChange('patient', 'first_name', e.target.value)}
-                required
-              />
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Last Name *</label>
-              <input
-                style={styles.input}
-                type="text"
-                value={formData.patient.last_name}
-                onChange={(e) => handleChange('patient', 'last_name', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-          <div style={styles.row}>
-            <div style={styles.field}>
-              <label style={styles.label}>Date of Birth *</label>
-              <input
-                style={styles.input}
-                type="date"
-                value={formData.patient.dob}
-                onChange={(e) => handleChange('patient', 'dob', e.target.value)}
-                required
-              />
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>MRN (6 digits) *</label>
-              <input
-                style={styles.input}
-                type="text"
-                maxLength={6}
-                value={formData.patient.mrn}
-                onChange={(e) => handleChange('patient', 'mrn', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Provider Section */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>Referring Provider</h2>
-          <div style={styles.row}>
-            <div style={styles.field}>
-              <label style={styles.label}>Provider Name *</label>
-              <input
-                style={styles.input}
-                type="text"
-                value={formData.provider.name}
-                onChange={(e) => handleChange('provider', 'name', e.target.value)}
-                required
-              />
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>NPI (10 digits) *</label>
-              <input
-                style={styles.input}
-                type="text"
-                maxLength={10}
-                value={formData.provider.npi}
-                onChange={(e) => handleChange('provider', 'npi', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Medication Section */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>Medication & Diagnosis</h2>
-          <div style={styles.row}>
-            <div style={styles.field}>
-              <label style={styles.label}>Medication Name *</label>
-              <input
-                style={styles.input}
-                type="text"
-                value={formData.medication.name}
-                onChange={(e) => handleChange('medication', 'name', e.target.value)}
-                required
-              />
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Primary Diagnosis (ICD-10) *</label>
-              <input
-                style={styles.input}
-                type="text"
-                placeholder="e.g., G70.00"
-                value={formData.medication.primary_diagnosis}
-                onChange={(e) => handleChange('medication', 'primary_diagnosis', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-          <div style={styles.row}>
-            <div style={styles.field}>
-              <label style={styles.label}>Additional Diagnoses (comma separated)</label>
-              <input
-                style={styles.input}
-                type="text"
-                placeholder="e.g., I10, K21.9"
-                value={formData.medication.additional_diagnoses}
-                onChange={(e) => handleChange('medication', 'additional_diagnoses', e.target.value)}
-              />
-            </div>
-          </div>
-          <div style={styles.row}>
-            <div style={styles.field}>
-              <label style={styles.label}>Medication History (comma separated)</label>
-              <input
-                style={styles.input}
-                type="text"
-                placeholder="e.g., Pyridostigmine 60mg, Prednisone 10mg"
-                value={formData.medication.medication_history}
-                onChange={(e) => handleChange('medication', 'medication_history', e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Patient Records */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>Patient Records (Optional)</h2>
-          <textarea
-            style={styles.textarea}
-            placeholder="Paste relevant patient records or notes here..."
-            value={formData.patient_records}
-            onChange={(e) => setFormData(prev => ({ ...prev, patient_records: e.target.value }))}
-          />
-        </div>
-
-        <button
-          type="submit"
-          style={loading ? { ...styles.button, ...styles.buttonDisabled } : styles.button}
-          disabled={loading}
-        >
-          {loading ? 'Submitting...' : 'Generate Care Plan'}
-        </button>
-      </form>
-
-      {/* Result Section */}
-      {result && (
-        <div style={styles.result}>
-          {/* Order Info */}
-          {result.order_id && (
-            <div style={styles.orderInfo}>
-              <strong>Order ID:</strong> <span style={styles.orderId}>{result.order_id}</span>
-              {result.patient && (
-                <span style={{ marginLeft: '20px' }}>
-                  <strong>Patient:</strong> {result.patient.name} (MRN: {result.patient.mrn})
-                </span>
-              )}
-              {result.medication && (
-                <span style={{ marginLeft: '20px' }}>
-                  <strong>Medication:</strong> {result.medication}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Status Badge */}
-          <div style={getStatusStyle(result.status)}>
-            <strong>Status: {getStatusText(result.status)}</strong>
-            {result.message && <p style={{ margin: '5px 0 0 0' }}>{result.message}</p>}
-          </div>
-
-          {/* Polling indicator or manual Check Status - Show when pending or processing */}
-          {(result.status === 'pending' || result.status === 'processing') && (
-            polling ? (
-              <div style={{ textAlign: 'center', padding: '10px', color: '#004085' }}>
-                Auto-checking every 3 seconds...
-                <button
-                  style={{ ...styles.checkStatusButton, marginTop: '10px', background: '#6c757d' }}
-                  onClick={() => setPolling(false)}
-                >
-                  Stop Auto-Check
-                </button>
-              </div>
-            ) : (
-              <button
-                style={checkingStatus ? { ...styles.checkStatusButton, ...styles.buttonDisabled } : styles.checkStatusButton}
-                onClick={() => { handleCheckStatus(); setPolling(true); }}
-                disabled={checkingStatus}
-              >
-                {checkingStatus ? 'Checking...' : 'Check Status'}
-              </button>
-            )
-          )}
-
-          {/* Care Plan Content - Show when completed */}
-          {result.status === 'completed' && result.care_plan && (
-            <>
-              <h3 style={{ marginBottom: '15px' }}>Generated Care Plan</h3>
-              <div style={styles.carePlan}>
-                {result.care_plan.content}
-              </div>
-              <div style={styles.buttonRow}>
-                <button style={styles.downloadButton} onClick={handleDownload}>
-                  Download Care Plan (.txt)
-                </button>
-                <button style={styles.checkStatusButton} onClick={handleCheckStatus}>
-                  Refresh
-                </button>
-              </div>
-            </>
-          )}
-
-          {/* Error Message - Show when failed */}
-          {result.status === 'failed' && result.error && (
-            <div style={{ color: '#721c24' }}>
-              <strong>Error:</strong> {result.error.message}
-            </div>
-          )}
-        </div>
-      )}
+      {/* CSS 动画（轮询闪烁点）*/}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.2; }
+        }
+      `}</style>
     </div>
   )
 }

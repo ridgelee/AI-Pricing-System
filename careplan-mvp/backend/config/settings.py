@@ -12,7 +12,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'rest_framework',
     'corsheaders',
-    'careplan',
+    'pricing',
 ]
 
 MIDDLEWARE = [
@@ -24,7 +24,7 @@ ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://careplan:careplan123@localhost:5432/careplan')
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://pricing:pricing123@localhost:5432/pricing_db')
 db_parts = DATABASE_URL.replace('postgresql://', '').split('@')
 user_pass = db_parts[0].split(':')
 host_db = db_parts[1].split('/')
@@ -54,11 +54,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
     ],
-    'EXCEPTION_HANDLER': 'careplan.exception_handler.unified_exception_handler',
+    'EXCEPTION_HANDLER': 'pricing.exception_handler.unified_exception_handler',
 }
 
-# OpenAI
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
+# Anthropic API
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')
+
+# pgvector — 在首次 migrate 时自动创建扩展（通过 Migration 的 RunSQL）
+# sentence-transformers 模型路径（容器内缓存）
+SENTENCE_TRANSFORMERS_MODEL = 'all-MiniLM-L6-v2'
 
 # Celery
 CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
